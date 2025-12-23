@@ -1,8 +1,14 @@
 export class User {
-  constructor(
-    public id: number,
-    public name: string,
-    public email: string,
-    public password: string,
-  ) {}
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  createidAt: Date;
+  constructor(id: number, name: string, email: string, password: string) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.createidAt = new Date();
+  }
 }
