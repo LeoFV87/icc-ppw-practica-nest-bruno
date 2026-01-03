@@ -1,5 +1,5 @@
 export class PartialUpdateProductsDto {
   name?: string;
-  precio?: number;
+  price?: number;
   stock?: number;
 }

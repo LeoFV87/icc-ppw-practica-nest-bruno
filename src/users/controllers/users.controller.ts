@@ -6,54 +6,53 @@ import {
   Delete,
   Param,
   Body,
+  ParseIntPipe,
+  Put,
 } from '@nestjs/common';
-import { UserMapper } from '../mappers/user.mapper';
-import { PartialUpdateUserDto } from '../dtos/partial-update-user.dto';
-import { User } from '../entities/user.entity';
+import { UsersService } from '../services/users.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
+import { PartialUpdateUserDto } from '../dtos/partial-update-user.dto';
+import { UserResponseDto } from '../dtos/user-response.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
 
 @Controller('usuarios')
 export class UsersController {
-  private users: Array<User> = [];
-  private currentId = 1;
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll() {
-    return this.users.map((u) => UserMapper.toResponseDto(u));
+  async findAll(): Promise<UserResponseDto[]> {
+    return await this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    const user = this.users.find((u) => u.id === Number(id));
-    if (!user) return { error: 'User not found' };
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<UserResponseDto> {
+    return await this.usersService.findOne(id);
+  }
 
-    return UserMapper.toResponseDto(user);
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.update(id, dto);
   }
 
   @Post()
-  create(@Body() dto: CreateUserDto) {
-    const entity = UserMapper.toEntity(this.currentId++, dto);
-    this.users.push(entity);
-    return UserMapper.toResponseDto(entity);
+  async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
+    return await this.usersService.create(dto);
   }
 
   @Patch(':id')
-  partialUpdate(@Param('id') id: string, @Body() dto: PartialUpdateUserDto) {
-    const user = this.users.find((u) => u.id === Number(id));
-    if (!user) return { error: 'User not found' };
-
-    if (dto.name !== undefined) user.name = dto.name;
-    if (dto.email !== undefined) user.email = dto.email;
-
-    return UserMapper.toResponseDto(user);
+  async partialUpdate(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: PartialUpdateUserDto,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.partialUpdate(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    const exists = this.users.some((u) => u.id === Number(id));
-    if (!exists) return { error: 'User not found' };
-
-    this.users = this.users.filter((u) => u.id !== Number(id));
-    return { message: 'Deleted successfully' };
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.usersService.delete(id);
+    return { message: 'Usuario eliminado exitosamente' };
   }
 }

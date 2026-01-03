@@ -1,17 +1,24 @@
 import { CreateProductsDto } from '../dtos/create-products.dto';
-import { Products } from '../entities/products.entity';
+
+import { ProductsResponseDto } from '../dtos/products-response.dto';
+import { ProductEntity } from '../entities/products.entity';
 
 export class ProductsMapper {
-  static toEntity(id: number, dto: CreateProductsDto): Products {
-    return new Products(id, dto.name, dto.precio, dto.stock);
+
+  static toEntity(dto: CreateProductsDto): ProductEntity {
+    const entity = new ProductEntity();
+    entity.name = dto.name;
+    entity.price = dto.price; 
+    entity.stock = dto.stock;
+    return entity;
   }
 
-  static toResponseDto(products: Products) {
+  static toResponseDto(entity: ProductEntity): ProductsResponseDto {
     return {
-      id: products.id,
-      name: products.name,
-      precio: products.precio,
-      stock: products.stock,
+      id: entity.id,
+      name: entity.name,
+      price: Number(entity.price), 
+      stock: entity.stock,
     };
   }
 }
