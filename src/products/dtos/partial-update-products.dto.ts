@@ -9,6 +9,7 @@ export class PartialUpdateProductsDto {
 
   @IsNumber()
   @IsOptional()
+
   @Min(0, { message: 'El precio no puede ser negativo' })
   price: number;
 
