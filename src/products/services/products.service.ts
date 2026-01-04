@@ -15,11 +15,13 @@ export class ProductsService {
     private readonly productRepo: Repository<ProductEntity>,
   ) {}
 
-  async create(dto: CreateProductsDto): Promise<ProductsResponseDto> {
-    const model = Product.fromDto(dto);
-    const saved = await this.productRepo.save(model.toEntity());
-    return Product.fromEntity(saved).toResponseDto();
-  }
+  async create(dto: CreateProductsDto) {
+  // Validación de dominio (Reglas de negocio)
+  const product = Product.fromDto(dto);
+  
+  const saved = await this.productRepo.save(product.toEntity());
+  return Product.fromEntity(saved).toResponseDto();
+}
 
   async findAll(): Promise<ProductsResponseDto[]> {
     const entities = await this.productRepo.find();

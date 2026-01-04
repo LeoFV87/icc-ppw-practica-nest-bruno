@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
@@ -45,13 +45,16 @@ export class UsersService {
   /**
    * Crear usuario (flujo funcional)
    */
-  async create(dto: CreateUserDto): Promise<UserResponseDto> {
-    // Flujo funcional: DTO → Model → Entity → Save → Model → DTO
-    const user = User.fromDto(dto);           // DTO → Domain
-    const entity = user.toEntity();            // Domain → Entity
-    const saved = await this.userRepository.save(entity); // Persistir
+  async create(dto: CreateUserDto) {
+    const exists = await this.userRepository.exist({ where: { email: dto.email } });
+    if (exists) {
+      throw new BadRequestException("El email ya está registrado");
+    }
+
+    const user = User.fromDto(dto); // DTO -> Dominio
+    const saved = await this.userRepository.save(user.toEntity()); // Dominio -> Entidad -> DB
     
-    return User.fromEntity(saved).toResponseDto(); // Entity → Domain → DTO
+    return User.fromEntity(saved).toResponseDto(); // Entidad -> Dominio -> DTO
   }
 
   /**

@@ -11,41 +11,30 @@ export class Product {
     public price: number,
     public stock: number,
     public createdAt: Date,
-  ) {}
+  ) {
+    if (!name || name.trim().length < 3) throw new Error("Nombre inválido");
+    if (price < 0) throw new Error("Precio negativo");
+    if (stock < 0) throw new Error("Stock negativo");
+  }
 
   // ==================== FACTORY METHODS ====================
 
   static fromDto(dto: CreateProductsDto): Product {
-    return new Product(
-      0, 
-      dto.name,
-      dto.price,
-      dto.stock,
-      new Date(),
-    );
+    return new Product(0, dto.name, dto.price, dto.stock, new Date());
   }
 
   static fromEntity(entity: ProductEntity): Product {
-    return new Product(
-      entity.id,
-      entity.name,
-      Number(entity.price), // PostgreSQL retorna decimal como string
-      entity.stock,
-      entity.createdAt,
-    );
+    return new Product(entity.id, entity.name, entity.price, entity.stock, entity.createdAt);
   }
 
   // ==================== CONVERSION METHODS ====================
 
   toEntity(): ProductEntity {
     const entity = new ProductEntity();
-    if (this.id > 0) {
-      entity.id = this.id;
-    }
+    if (this.id > 0) entity.id = this.id;
     entity.name = this.name;
     entity.price = this.price;
     entity.stock = this.stock;
-    entity.createdAt = this.createdAt;
     return entity;
   }
 
@@ -54,9 +43,8 @@ export class Product {
       id: this.id,
       name: this.name,
       price: this.price,
-      stock: this.stock,
+      stock: this.stock
     };
-    // No incluye createdAt porque no está en tu ProductsResponseDto
   }
 
   // ==================== UPDATE METHODS ====================
